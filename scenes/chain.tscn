@@ -5,6 +5,15 @@
 [ext_resource type="Script" uid="uid://dyjgg2kj2f0j1" path="res://scenes/tip.gd" id="3_6wnao"]
 [ext_resource type="Texture2D" uid="uid://im5kcslhkyfh" path="res://icon.svg" id="4_6wnao"]
 
+[sub_resource type="Gradient" id="Gradient_6wnao"]
+offsets = PackedFloat32Array(0.18421052, 0.56766915)
+colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_qlifr"]
+gradient = SubResource("Gradient_6wnao")
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_6wnao"]
 radius = 5.0
 
@@ -27,11 +36,19 @@ collision_layer = 4
 script = ExtResource("3_6wnao")
 
 [node name="Hook" type="Sprite2D" parent="Tip" unique_id=1356258634]
-modulate = Color(0, 0, 0, 1)
+modulate = Color(0.25, 0.6, 0.9, 1)
 texture_filter = 1
 position = Vector2(-0.5, -2.0000024)
 scale = Vector2(0.2578125, 0.26562497)
 texture = ExtResource("4_6wnao")
+
+[node name="PointLight2D" type="PointLight2D" parent="Tip/Hook" unique_id=6560930]
+top_level = true
+color = Color(0.45, 0.85, 1, 1)
+energy = 9.35
+shadow_enabled = true
+texture = SubResource("GradientTexture2D_qlifr")
+texture_scale = 6.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Tip" unique_id=447201310]
 shape = SubResource("CapsuleShape2D_6wnao")

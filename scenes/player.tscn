@@ -6,6 +6,8 @@
 [ext_resource type="Script" uid="uid://kol6k5y6rb8a" path="res://addons/softbody2d/softbody2d.gd" id="3_tuyoq"]
 [ext_resource type="Script" uid="uid://12erigejv7vt" path="res://scripts/crosshair.gd" id="3_v9bzi"]
 
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_qlg0r"]
+
 [sub_resource type="SkeletonModification2DLookAt" id="SkeletonModification2DLookAt_qlg0r"]
 resource_local_to_scene = true
 bone_index = 0
@@ -43,7 +45,9 @@ script = ExtResource("1_g2els")
 
 [node name="SoftBody2D" type="Polygon2D" parent="." unique_id=2005940994]
 texture_filter = 1
+material = SubResource("CanvasItemMaterial_qlg0r")
 position = Vector2(-16, -16)
+color = Color(0.5227242, 0.5227243, 0.5227242, 1)
 texture = ExtResource("2_qlg0r")
 skeleton = NodePath("Skeleton2D")
 polygon = PackedVector2Array(0, 30, 32, 30, 32, 4, 0, 4, 32, 15, 17.32051, 15, 10.969658, 4, 32, 4, 17.32051, 15, 8.660255, 30, 0, 30, 0, 4, 10.969658, 4, 32, 30, 8.660255, 30, 17.32051, 15, 32, 15)

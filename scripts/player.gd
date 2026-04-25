@@ -3,20 +3,24 @@ class_name Player
 
 @export var speed: float = 200.0
 @export var jump_force: float = -450.0
-@export var acceleration: float = 1500.0
+@export var acceleration: float = 1000
 @export var gravity: float = 900.0
 @export var gravity_scale: float = 1.0
 @export var grapple_pull_speed: float = 600.0
 @export var grapple_max_distance: float = 500.0
+@export var extra_air_jumps: int = 1
 
 const HOOK_SPEED: float = 900.0
+const LIGHT_MASK: int = 1
 
 @onready var softbody_node: SoftBody2D = $SoftBody2D
 @onready var floor_ray: RayCast2D = $FloorRay
 @onready var chain_node: Node2D = $Chain
 @onready var camera_2d: Camera2D = $Camera2D
 @onready var crosshair: Crosshair = $Crosshair
+@onready var player_light: PointLight2D = $PointLight2D
 
+var tile_map: TileMap = null
 var hook_tip: HookTip = null
 var center_rigidbody: RigidBody2D = null
 var softbody_base_scale_x: float = 1.0
@@ -26,6 +30,7 @@ var softbody_facing_right: bool = true
 var hook_active: bool = false
 var hook_released: bool = true
 var grapple_velocity: Vector2 = Vector2.ZERO
+var air_jumps_remaining: int = 0
 
 func _ready() -> void:
 	if chain_node != null and chain_node.has_node("Tip"):
@@ -40,8 +45,21 @@ func _ready() -> void:
 	if crosshair == null:
 		push_warning("Crosshair missing. The aiming system may not work.")
 
+	var parent_node: Node = get_parent()
+	if parent_node != null and parent_node.has_node("TileMap"):
+		var found_tile_map: TileMap = parent_node.get_node("TileMap") as TileMap
+		if found_tile_map != null and player_light != null:
+			tile_map = found_tile_map
+			tile_map.light_mask = LIGHT_MASK
+			_configure_tilemap_lighting(tile_map)
+			player_light.light_mask = LIGHT_MASK
+			player_light.range_item_cull_mask = LIGHT_MASK
+			player_light.shadow_item_cull_mask = LIGHT_MASK
+
 	if floor_ray != null:
 		floor_ray.target_position = Vector2(0, 24) # Short enough for 1.0 scale
+
+	air_jumps_remaining = max(extra_air_jumps, 0)
 
 	# Add trail effect to make it feel alive!
 	var trail = GPUParticles2D.new()
@@ -60,6 +78,17 @@ func _ready() -> void:
 	add_child(trail)
 
 	call_deferred("_initialize_softbody")
+
+func _configure_tilemap_lighting(map: TileMap) -> void:
+	if map == null:
+		return
+	var material: CanvasItemMaterial = null
+	if map.material is CanvasItemMaterial:
+		material = map.material as CanvasItemMaterial
+	else:
+		material = CanvasItemMaterial.new()
+		map.material = material
+	material.light_mode = CanvasItemMaterial.LIGHT_MODE_NORMAL
 
 func _generate_circle_texture_and_polygon(radius: float) -> void:
 	var size = int(radius * 2.0)
@@ -144,8 +173,15 @@ func _physics_process(delta: float) -> void:
 
 	_update_floor_ray_position()
 	
+	var on_floor_now: bool = is_on_floor()
+	if on_floor_now:
+		air_jumps_remaining = max(extra_air_jumps, 0)
+	
 	if has_node("Trail"):
 		get_node("Trail").global_position = get_player_position()
+		
+	if player_light != null:
+		player_light.global_position = get_player_position()
 
 	handle_input()
 
@@ -154,11 +190,11 @@ func _physics_process(delta: float) -> void:
 			apply_grapple_pull(delta)
 		elif hook_tip.velocity == Vector2.ZERO or hook_tip.flight_timer >= 3.0:
 			release()
-			apply_normal_movement(delta)
+			apply_normal_movement(delta, on_floor_now)
 		else:
-			apply_normal_movement(delta)
+			apply_normal_movement(delta, on_floor_now)
 	else:
-		apply_normal_movement(delta)
+		apply_normal_movement(delta, on_floor_now)
 
 	update_softbody_orientation()
 
@@ -168,14 +204,21 @@ func handle_input() -> void:
 	if Input.is_action_just_pressed("release"):
 		release()
 
-func apply_normal_movement(delta: float) -> void:
+func apply_normal_movement(delta: float, on_floor: bool) -> void:
 	var input_direction: float = 0.0
 	if Input.is_action_pressed("right"):
 		input_direction += 1.0
 	if Input.is_action_pressed("left"):
 		input_direction -= 1.0
 
-	var jump_pressed: bool = is_on_floor() and Input.is_action_just_pressed("jump")
+	var jump_pressed: bool = Input.is_action_just_pressed("jump")
+	var should_jump: bool = false
+	if jump_pressed:
+		if on_floor:
+			should_jump = true
+		elif air_jumps_remaining > 0:
+			should_jump = true
+			air_jumps_remaining -= 1
 
 	if softbody_node:
 		var rigid_bodies: Array = softbody_node.get_rigid_bodies()
@@ -197,7 +240,7 @@ func apply_normal_movement(delta: float) -> void:
 					if abs(rb.linear_velocity.x) > speed:
 						rb.linear_velocity = Vector2(sign(rb.linear_velocity.x) * speed, rb.linear_velocity.y)
 
-				if jump_pressed:
+				if should_jump:
 					rb.linear_velocity = Vector2(rb.linear_velocity.x, jump_force)
 
 
@@ -290,10 +333,6 @@ func apply_grapple_pull(delta: float) -> void:
 	
 	if softbody_node:
 		var rigid_bodies: Array = softbody_node.get_rigid_bodies()
-		var center_body_name = ""
-		if center_rigidbody:
-			center_body_name = center_rigidbody.name
-		
 		for rb_data in rigid_bodies:
 			if "rigidbody" in rb_data and rb_data.rigidbody is RigidBody2D:
 				var rb: RigidBody2D = rb_data.rigidbody

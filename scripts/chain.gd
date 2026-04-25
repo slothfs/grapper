@@ -5,6 +5,7 @@ const PlayerClass = preload("res://scripts/player.gd")
 
 var link_sprite: Sprite2D = null
 var hook_tip: CharacterBody2D = null
+var hook_light: PointLight2D = null
 @onready var player_node: Node2D = get_parent() as Node2D
 var crosshair_node: Node2D = null
 
@@ -18,6 +19,8 @@ func _ready() -> void:
 	if hook_tip != null:
 		hook_tip.top_level = true
 		hook_tip.visible = false
+		if hook_tip.has_node("Hook/PointLight2D"):
+			hook_light = hook_tip.get_node("Hook/PointLight2D") as PointLight2D
 		
 	if link_sprite != null:
 		link_sprite.top_level = true
