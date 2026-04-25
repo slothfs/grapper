@@ -1,0 +1,36 @@
+[gd_scene format=3 uid="uid://btokans2fgwbw"]
+
+[ext_resource type="Script" uid="uid://cjj8o4d6tyjtf" path="res://scripts/chain.gd" id="1_i8vwp"]
+[ext_resource type="Texture2D" uid="uid://5ltf3cw0fdk2" path="res://assets/chain.png" id="1_r1vlr"]
+[ext_resource type="Texture2D" uid="uid://dat3dsrm64rph" path="res://assets/hook.png" id="2_i8vwp"]
+[ext_resource type="Script" uid="uid://dyjgg2kj2f0j1" path="res://scenes/tip.gd" id="3_6wnao"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_6wnao"]
+radius = 5.0
+
+[node name="Chain" type="Node2D" unique_id=1413433464]
+script = ExtResource("1_i8vwp")
+
+[node name="Links" type="Sprite2D" parent="." unique_id=1756805140]
+texture_filter = 1
+texture_repeat = 2
+texture = ExtResource("1_r1vlr")
+centered = false
+offset = Vector2(-8, 14)
+region_enabled = true
+region_rect = Rect2(0, 0, 16, 360)
+
+[node name="Tip" type="CharacterBody2D" parent="." unique_id=1202475345]
+script = ExtResource("3_6wnao")
+collision_layer = 4
+collision_mask = 1
+visible = false
+
+[node name="Hook" type="Sprite2D" parent="Tip" unique_id=1356258634]
+texture_filter = 1
+texture = ExtResource("2_i8vwp")
+centered = true
+offset = Vector2(0, 0)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Tip" unique_id=447201310]
+shape = SubResource("CapsuleShape2D_6wnao")

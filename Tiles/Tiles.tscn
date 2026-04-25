@@ -1,0 +1,37 @@
+[gd_scene format=3 uid="uid://bw64x3sikekwg"]
+
+[ext_resource type="Texture2D" uid="uid://dg3acrtc0bhit" path="res://assets/tiles.png" id="1_5u4tj"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ctcbd"]
+size = Vector2(32, 32)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_c7q04"]
+size = Vector2(32, 32)
+
+[node name="Tiles" type="Node2D" unique_id=1338718584]
+
+[node name="Top" type="Sprite2D" parent="." unique_id=1116853811]
+texture = ExtResource("1_5u4tj")
+region_enabled = true
+region_rect = Rect2(0, 0, 32, 32)
+metadata/_edit_group_ = true
+
+[node name="StaticBody2D" type="StaticBody2D" parent="Top" unique_id=1289723116]
+collision_mask = 6
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Top/StaticBody2D" unique_id=1471387584]
+shape = SubResource("RectangleShape2D_ctcbd")
+
+[node name="Bot" type="Sprite2D" parent="." unique_id=584777376]
+position = Vector2(46, 0)
+texture = ExtResource("1_5u4tj")
+region_enabled = true
+region_rect = Rect2(0, 32, 32, 32)
+metadata/_edit_group_ = true
+
+[node name="StaticBody2D" type="StaticBody2D" parent="Bot" unique_id=1293238603]
+collision_mask = 6
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Bot/StaticBody2D" unique_id=982705494]
+shape = SubResource("RectangleShape2D_c7q04")
+debug_color = Color(0.33873567, 0.48684478, 1, 0.41960785)
