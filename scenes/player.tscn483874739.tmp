@@ -38,12 +38,23 @@ modifications/2 = SubResource("SkeletonModification2DLookAt_fjrip")
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ur7pv"]
 resource_local_to_scene = true
 
-[node name="Player" type="Node2D" unique_id=36977239]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_g2els"]
+size = Vector2(137, 99)
+
+[node name="Player" type="CharacterBody2D" unique_id=36977239]
+collision_layer = 2
 script = ExtResource("1_g2els")
+speed = null
+jump_force = null
+gravity = null
+friction = null
+grapple_pull_speed = null
+grapple_max_distance = null
 
 [node name="SoftBody2D" type="Polygon2D" parent="." unique_id=2005940994]
 texture_filter = 1
-position = Vector2(-16, -16)
+position = Vector2(-68, -63)
+scale = Vector2(4.2576284, 3.7401402)
 texture = ExtResource("2_qlg0r")
 skeleton = NodePath("Skeleton2D")
 polygon = PackedVector2Array(0, 30, 32, 30, 32, 4, 0, 4, 32, 15, 17.32051, 15, 10.969658, 4, 32, 4, 17.32051, 15, 8.660255, 30, 0, 30, 0, 4, 10.969658, 4, 32, 30, 8.660255, 30, 17.32051, 15, 32, 15)
@@ -58,7 +69,7 @@ visible = false
 modification_stack = SubResource("SkeletonModificationStack2D_smehm")
 
 [node name="Bone-0" type="Bone2D" parent="SoftBody2D/Skeleton2D" unique_id=1888511296]
-position = Vector2(21.484829, 9.5)
+position = Vector2(21.484829, 9.499999)
 rotation = 2.6124136
 scale = Vector2(0.99999994, 0.99999976)
 rest = Transform2D(-0.8632218, 0.5048248, -0.5048248, -0.8632218, 21.484829, 9.5)
@@ -73,8 +84,8 @@ metadata/_local_pose_override_enabled_ = true
 
 [node name="Bone-1" type="Bone2D" parent="SoftBody2D/Skeleton2D" unique_id=1368113566]
 position = Vector2(8.660255, 17)
-rotation = 0.44042426
-scale = Vector2(1.0000002, 0.99999964)
+rotation = 0.44042438
+scale = Vector2(1.0000001, 0.99999964)
 rest = Transform2D(0.9045708, 0.42632338, -0.42632338, 0.9045708, 8.660255, 17)
 auto_calculate_length_and_angle = false
 length = 30.0
@@ -101,7 +112,8 @@ metadata/_local_pose_override_enabled_ = true
 
 [node name="Bone-0" type="RigidBody2D" parent="SoftBody2D" unique_id=959724232]
 position = Vector2(21.484829, 9.5)
-collision_layer = 2
+collision_layer = 0
+collision_mask = 0
 mass = 0.1
 metadata/idx = 0
 metadata/bone_name = &"Bone-0"
@@ -134,7 +146,8 @@ softness = 60.0
 
 [node name="Bone-1" type="RigidBody2D" parent="SoftBody2D" unique_id=1750401392]
 position = Vector2(8.660255, 17)
-collision_layer = 2
+collision_layer = 0
+collision_mask = 0
 mass = 0.1
 metadata/idx = 1
 metadata/bone_name = &"Bone-1"
@@ -167,7 +180,8 @@ softness = 60.0
 
 [node name="Bone-2" type="RigidBody2D" parent="SoftBody2D" unique_id=202947792]
 position = Vector2(20.330128, 22.5)
-collision_layer = 2
+collision_layer = 0
+collision_mask = 0
 mass = 0.1
 metadata/idx = 2
 metadata/bone_name = &"Bone-2"
@@ -198,8 +212,9 @@ node_a = NodePath("..")
 node_b = NodePath("../../Bone-1")
 softness = 60.0
 
-[node name="FloorRay" type="RayCast2D" parent="." unique_id=1700000000]
-target_position = Vector2(0, 24)
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1972352202]
+position = Vector2(0.5, 0.5)
+shape = SubResource("RectangleShape2D_g2els")
 
 [node name="Crosshair" type="Node2D" parent="." unique_id=2100000002]
 z_index = 1000

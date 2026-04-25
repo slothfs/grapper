@@ -1,143 +1,327 @@
-extends CharacterBody2D
+extends Node2D
 class_name Player
 
 @export var speed: float = 200.0
-@export var jump_force: float = -400.0
+@export var jump_force: float = -450.0
+@export var acceleration: float = 1500.0
 @export var gravity: float = 900.0
-@export var friction: float = 16.0
+@export var gravity_scale: float = 1.0
 @export var grapple_pull_speed: float = 600.0
 @export var grapple_max_distance: float = 500.0
 
 const HOOK_SPEED: float = 900.0
 
-var camera_2d: Camera2D = null
-var chain: Node2D = null
+@onready var softbody_node: SoftBody2D = $SoftBody2D
+@onready var floor_ray: RayCast2D = $FloorRay
+@onready var chain_node: Node2D = $Chain
+@onready var camera_2d: Camera2D = $Camera2D
+@onready var crosshair: Crosshair = $Crosshair
+
 var hook_tip: HookTip = null
-var crosshair: Crosshair = null
+var center_rigidbody: RigidBody2D = null
+var softbody_base_scale_x: float = 1.0
+var softbody_scale_y: float = 1.0
+var softbody_facing_right: bool = true
 
 var hook_active: bool = false
 var hook_released: bool = true
 var grapple_velocity: Vector2 = Vector2.ZERO
 
 func _ready() -> void:
-	# Find nodes after scene is fully loaded
-	if has_node("Camera2D"):
-		camera_2d = $Camera2D
-	else:
-		push_warning("Camera2D not found!")
-	
-	if has_node("Crosshair"):
-		crosshair = $Crosshair
-	else:
-		push_warning("Crosshair not found!")
-	
-	if has_node("Chain"):
-		chain = $Chain
-	else:
-		push_warning("Chain not found!")
-	
-	if has_node("Chain/Tip"):
-		hook_tip = $Chain/Tip
+	if chain_node != null and chain_node.has_node("Tip"):
+		hook_tip = chain_node.get_node("Tip") as HookTip
+		hook_tip.collision_mask = 1 # Ensure hook only collides with environment
+		hook_tip.collision_layer = 4
 	else:
 		push_error("Hook Tip (Chain/Tip) not found! Check scene structure.")
 
-func _physics_process(delta: float) -> void:
-	handle_input()
+	if camera_2d == null:
+		push_warning("Camera2D missing. The camera will not follow the player.")
+	if crosshair == null:
+		push_warning("Crosshair missing. The aiming system may not work.")
+
+	if floor_ray != null:
+		floor_ray.target_position = Vector2(0, 24) # Short enough for 1.0 scale
+
+	# Add trail effect to make it feel alive!
+	var trail = GPUParticles2D.new()
+	trail.name = "Trail"
+	trail.amount = 30
+	trail.lifetime = 0.5
+	trail.local_coords = false
+	var mat = ParticleProcessMaterial.new()
+	mat.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_SPHERE
+	mat.emission_sphere_radius = 12.0
+	mat.gravity = Vector3(0, -30, 0)
+	mat.scale_min = 4.0
+	mat.scale_max = 10.0
+	mat.color = Color(0.2, 0.7, 0.9, 0.4)
+	trail.process_material = mat
+	add_child(trail)
+
+	call_deferred("_initialize_softbody")
+
+func _generate_circle_texture_and_polygon(radius: float) -> void:
+	var size = int(radius * 2.0)
+	var img = Image.create(size, size, false, Image.FORMAT_RGBA8)
 	
-	if hook_active and hook_tip != null and hook_tip.velocity == Vector2.ZERO:
-		apply_grapple_pull(delta)
+	for y in range(size):
+		for x in range(size):
+			var dist = Vector2(x - radius, y - radius).length()
+			if dist <= radius:
+				if dist >= radius - 2.0:
+					img.set_pixel(x, y, Color.BLACK)
+				else:
+					img.set_pixel(x, y, Color(0.2, 0.7, 0.9, 1.0))
+			else:
+				img.set_pixel(x, y, Color.TRANSPARENT)
+				
+	var tex = ImageTexture.create_from_image(img)
+	softbody_node.texture = tex
+	
+	var points = PackedVector2Array()
+	var num_points = 16
+	for i in range(num_points):
+		var angle = i * TAU / num_points
+		points.append(Vector2(radius, radius) + Vector2(cos(angle), sin(angle)) * radius)
+	
+	softbody_node.polygon = points
+
+func _initialize_softbody() -> void:
+	if softbody_node == null:
+		push_error("SoftBody2D node missing. Player visuals are unavailable.")
+		return
+
+	_generate_circle_texture_and_polygon(16.0)
+
+	softbody_node.collision_layer = 2
+	softbody_node.collision_mask = 1
+
+	# Force the SoftBody2D to regenerate its mesh and bones from the new circular texture
+	softbody_node.create_softbody2d(true)
+
+	softbody_base_scale_x = abs(softbody_node.scale.x)
+	softbody_scale_y = softbody_node.scale.y
+
+	center_rigidbody = _get_center_rigidbody()
+	if center_rigidbody == null:
+		push_error("Failed to locate the center rigidbody inside the softbody.")
+		return
+
+	center_rigidbody.gravity_scale = gravity_scale
+	
+	# Create bouncy material dynamically so all bones get it when generated
+	var bouncy_mat = PhysicsMaterial.new()
+	bouncy_mat.bounce = 0.5
+	bouncy_mat.friction = 0.8
+	
+	softbody_node.physics_material_override = bouncy_mat
+
+	# Make the softbody slightly harder / stiffer
+	var rigid_bodies: Array = softbody_node.get_rigid_bodies()
+	for rb_data in rigid_bodies:
+		if "rigidbody" in rb_data and rb_data.rigidbody is RigidBody2D:
+			var rb: RigidBody2D = rb_data.rigidbody
+			rb.physics_material_override = bouncy_mat
+		if "joints" in rb_data:
+			for joint in rb_data.joints:
+				if joint is PinJoint2D:
+					joint.softness = 10.0
+
+func _get_center_rigidbody() -> RigidBody2D:
+	if softbody_node == null:
+		return null
+	var center_body := softbody_node.get_center_body()
+	if center_body == null:
+		return null
+	return center_body.rigidbody as RigidBody2D
+
+func _physics_process(delta: float) -> void:
+	if center_rigidbody == null:
+		_initialize_softbody()
+		if center_rigidbody == null:
+			return
+
+	_update_floor_ray_position()
+	
+	if has_node("Trail"):
+		get_node("Trail").global_position = get_player_position()
+
+	handle_input()
+
+	if hook_active and hook_tip != null:
+		if hook_tip.is_hooked:
+			apply_grapple_pull(delta)
+		elif hook_tip.velocity == Vector2.ZERO or hook_tip.flight_timer >= 3.0:
+			release()
+			apply_normal_movement(delta)
+		else:
+			apply_normal_movement(delta)
 	else:
 		apply_normal_movement(delta)
-	
-	move_and_slide()
+
+	update_softbody_orientation()
 
 func handle_input() -> void:
 	if Input.is_action_just_pressed("shoot"):
-		print("✅ shoot action detected!")
 		shoot()
-	
 	if Input.is_action_just_pressed("release"):
-		print("✅ release action detected!")
 		release()
 
 func apply_normal_movement(delta: float) -> void:
-	# Horizontal movement
+	var input_direction: float = 0.0
 	if Input.is_action_pressed("right"):
-		velocity.x = speed
-	elif Input.is_action_pressed("left"):
-		velocity.x = -speed
-	else:
-		velocity.x = move_toward(velocity.x, 0.0, friction)
-	
-	# Gravity
-	if not is_on_floor():
-		velocity.y += gravity * delta
-	else:
-		if Input.is_action_just_pressed("jump"):
-			velocity.y = jump_force
-	
-	# Reset grapple velocity
-	grapple_velocity = Vector2.ZERO
+		input_direction += 1.0
+	if Input.is_action_pressed("left"):
+		input_direction -= 1.0
 
-func apply_grapple_pull(delta: float) -> void:
-	# Pull player toward the hook
-	var direction: Vector2 = (hook_tip.global_position - global_position).normalized()
-	var distance: float = global_position.distance_to(hook_tip.global_position)
-	
-	# If we're too close, release automatically
-	if distance < 20.0:
-		release()
+	var jump_pressed: bool = is_on_floor() and Input.is_action_just_pressed("jump")
+
+	if softbody_node:
+		var rigid_bodies: Array = softbody_node.get_rigid_bodies()
+		for rb_data in rigid_bodies:
+			if "rigidbody" in rb_data and rb_data.rigidbody is RigidBody2D:
+				var rb: RigidBody2D = rb_data.rigidbody
+				
+				# Apply a rolling torque so the circular body rotates naturally
+				rb.apply_torque(input_direction * 12000.0)
+				
+				var current_velocity: Vector2 = rb.linear_velocity
+				
+				# Apply damping when no input is pressed, or horizontal force when pressed
+				if input_direction == 0:
+					current_velocity.x = move_toward(current_velocity.x, 0, acceleration * delta)
+					rb.linear_velocity = Vector2(current_velocity.x, rb.linear_velocity.y)
+				else:
+					rb.apply_central_force(Vector2(input_direction * acceleration * 2.0, 0))
+					if abs(rb.linear_velocity.x) > speed:
+						rb.linear_velocity = Vector2(sign(rb.linear_velocity.x) * speed, rb.linear_velocity.y)
+
+				if jump_pressed:
+					rb.linear_velocity = Vector2(rb.linear_velocity.x, jump_force)
+
+
+func is_on_floor() -> bool:
+	if floor_ray == null:
+		return false
+	return floor_ray.is_colliding()
+
+func _update_floor_ray_position() -> void:
+	if floor_ray == null:
 		return
-	
-	# Pull the player toward the hook
-	grapple_velocity = direction * grapple_pull_speed
-	
-	# Allow swinging: add horizontal input while grappling
-	if Input.is_action_pressed("right"):
-		grapple_velocity.x += speed * 0.5
-	elif Input.is_action_pressed("left"):
-		grapple_velocity.x -= speed * 0.5
-	
-	# Apply some gravity while grappling to allow swinging motion
-	grapple_velocity.y += gravity * delta * 0.3
-	
-	velocity = grapple_velocity
+	floor_ray.global_position = get_player_position()
+	floor_ray.force_raycast_update()
+
+func update_softbody_orientation() -> void:
+	if softbody_node == null or center_rigidbody == null:
+		return
+
+	var horizontal_velocity: float = center_rigidbody.linear_velocity.x
+	if horizontal_velocity > 0.0:
+		softbody_facing_right = true
+	elif horizontal_velocity < 0.0:
+		softbody_facing_right = false
+
+	# We skip scaling the SoftBody2D natively because flipping physics nodes 
+	# (scale.x = -1) causes physics engine explosions and duplicate visual glitches!
+	# softbody_node.scale = ...
+
 
 func shoot() -> void:
 	if hook_tip == null:
 		push_error("Hook Tip (Chain/Tip) not found in scene tree!")
 		return
-	
-	var aim_target: Vector2 = global_position
+
+	var player_position: Vector2 = get_player_position()
+	var aim_target: Vector2 = player_position
 	if crosshair != null:
 		aim_target = crosshair.global_position
 	else:
 		aim_target = get_global_mouse_position()
-	
-	var raw_direction: Vector2 = aim_target - global_position
+
+	var raw_direction: Vector2 = aim_target - player_position
 	if raw_direction == Vector2.ZERO:
 		return
-	
+
 	var distance_to_target: float = raw_direction.length()
 	var aim_direction: Vector2 = raw_direction / distance_to_target
 	var clamped_distance: float = min(distance_to_target, grapple_max_distance)
-	var target_position: Vector2 = global_position + aim_direction * clamped_distance
+	var target_position: Vector2 = player_position + aim_direction * clamped_distance
 
-	print("🎯 SHOOT called! Hook heading toward ", target_position)
 	hook_active = true
 	hook_released = false
 	hook_tip.visible = true
-	hook_tip.global_position = global_position
+	hook_tip.global_position = player_position
 	hook_tip.set_target_position(target_position)
 	hook_tip.velocity = aim_direction * HOOK_SPEED
 
 func release() -> void:
 	if hook_tip == null:
 		return
-	
+
 	hook_active = false
 	hook_released = true
 	hook_tip.visible = false
 	hook_tip.velocity = Vector2.ZERO
 	hook_tip.clear_target_position()
-	hook_tip.global_position = global_position
+	hook_tip.global_position = get_player_position()
+
+func apply_grapple_pull(delta: float) -> void:
+	if hook_tip == null:
+		return
+
+	var player_position: Vector2 = get_player_position()
+	var direction: Vector2 = (hook_tip.global_position - player_position).normalized()
+	var distance: float = player_position.distance_to(hook_tip.global_position)
+
+	if distance < 20.0:
+		release()
+		return
+
+	grapple_velocity = direction * grapple_pull_speed
+	var swing_input := 0.0
+	if Input.is_action_pressed("right"):
+		swing_input += 1.0
+	if Input.is_action_pressed("left"):
+		swing_input -= 1.0
+		
+	grapple_velocity.x += swing_input * speed * 0.5
+	grapple_velocity.y += gravity * delta * 0.3
+	
+	if softbody_node:
+		var rigid_bodies: Array = softbody_node.get_rigid_bodies()
+		var center_body_name = ""
+		if center_rigidbody:
+			center_body_name = center_rigidbody.name
+		
+		for rb_data in rigid_bodies:
+			if "rigidbody" in rb_data and rb_data.rigidbody is RigidBody2D:
+				var rb: RigidBody2D = rb_data.rigidbody
+				
+				# Pull strongly by applying central force 
+				rb.apply_central_force(direction * grapple_pull_speed * 4.0 * rb.mass)
+				
+				# Allow swinging back and forth when attached
+				if swing_input != 0.0:
+					var max_swing_speed = speed * 2.0
+					if (swing_input > 0 and rb.linear_velocity.x < max_swing_speed) or (swing_input < 0 and rb.linear_velocity.x > -max_swing_speed):
+						rb.apply_central_force(Vector2(swing_input * acceleration * 2.0 * rb.mass, 0))
+				
+				# Apply a gentle torque to give it a spinning effect while grappling
+				rb.apply_torque(grapple_velocity.x * 20.0)
+				
+				# Dampen extreme velocities smoothly
+				var current_speed = rb.linear_velocity.length()
+				if current_speed > grapple_pull_speed * 1.5:
+					rb.linear_velocity = rb.linear_velocity.move_toward(rb.linear_velocity.normalized() * grapple_pull_speed, delta * grapple_pull_speed * 2.0)
+					
+	elif center_rigidbody:
+		center_rigidbody.linear_velocity = grapple_velocity
+
+
+func get_player_position() -> Vector2:
+	if center_rigidbody != null:
+		return center_rigidbody.global_position
+	if softbody_node != null:
+		return softbody_node.global_position
+	return global_position

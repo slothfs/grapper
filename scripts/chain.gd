@@ -1,6 +1,8 @@
 extends Node2D
 class_name Chain
 
+const PlayerClass = preload("res://scripts/player.gd")
+
 var link_sprite: Sprite2D = null
 var hook_tip: CharacterBody2D = null
 @onready var player_node: Node2D = get_parent() as Node2D
@@ -41,7 +43,10 @@ func update_chain() -> void:
 	
 	var start_point: Vector2
 	if player_node != null:
-		start_point = player_node.global_position
+		if player_node is PlayerClass:
+			start_point = (player_node as PlayerClass).get_player_position()
+		else:
+			start_point = player_node.global_position
 	else:
 		start_point = global_position
 	var end_point: Vector2 = hook_tip.global_position
@@ -62,11 +67,5 @@ func update_chain() -> void:
 		tex_width = link_sprite.texture.get_width()
 		tex_height = link_sprite.texture.get_height()
 		
-	var limited_distance: float = distance
-	if crosshair_node != null:
-		var crosshair_distance: float = start_point.distance_to(crosshair_node.global_position)
-		if crosshair_distance > 0.0:
-			limited_distance = min(distance, crosshair_distance)
-	
-	var desired_length: float = max(limited_distance, tex_height)
+	var desired_length: float = max(distance, tex_height)
 	link_sprite.region_rect = Rect2(0.0, 0.0, tex_width, desired_length)

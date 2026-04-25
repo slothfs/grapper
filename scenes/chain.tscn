@@ -2,8 +2,8 @@
 
 [ext_resource type="Script" uid="uid://cjj8o4d6tyjtf" path="res://scripts/chain.gd" id="1_i8vwp"]
 [ext_resource type="Texture2D" uid="uid://5ltf3cw0fdk2" path="res://assets/chain.png" id="1_r1vlr"]
-[ext_resource type="Texture2D" uid="uid://dat3dsrm64rph" path="res://assets/hook.png" id="2_i8vwp"]
 [ext_resource type="Script" uid="uid://dyjgg2kj2f0j1" path="res://scenes/tip.gd" id="3_6wnao"]
+[ext_resource type="Texture2D" uid="uid://im5kcslhkyfh" path="res://icon.svg" id="4_6wnao"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_6wnao"]
 radius = 5.0
@@ -12,6 +12,8 @@ radius = 5.0
 script = ExtResource("1_i8vwp")
 
 [node name="Links" type="Sprite2D" parent="." unique_id=1756805140]
+visible = false
+modulate = Color(0, 0, 0, 1)
 texture_filter = 1
 texture_repeat = 2
 texture = ExtResource("1_r1vlr")
@@ -21,16 +23,15 @@ region_enabled = true
 region_rect = Rect2(0, 0, 16, 360)
 
 [node name="Tip" type="CharacterBody2D" parent="." unique_id=1202475345]
-script = ExtResource("3_6wnao")
 collision_layer = 4
-collision_mask = 1
-visible = false
+script = ExtResource("3_6wnao")
 
 [node name="Hook" type="Sprite2D" parent="Tip" unique_id=1356258634]
+modulate = Color(0, 0, 0, 1)
 texture_filter = 1
-texture = ExtResource("2_i8vwp")
-centered = true
-offset = Vector2(0, 0)
+position = Vector2(-0.5, -2.0000024)
+scale = Vector2(0.2578125, 0.26562497)
+texture = ExtResource("4_6wnao")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Tip" unique_id=447201310]
 shape = SubResource("CapsuleShape2D_6wnao")
