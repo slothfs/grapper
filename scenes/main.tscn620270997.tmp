@@ -1,0 +1,52 @@
+[gd_scene format=3 uid="uid://8n6femxmdky"]
+
+[ext_resource type="PackedScene" uid="uid://b4uepp6ve31hd" path="res://scenes/player.tscn" id="1_ab3cd"]
+[ext_resource type="Texture2D" uid="uid://dg3acrtc0bhit" path="res://assets/tiles.png" id="1_o5qli"]
+[ext_resource type="Script" uid="uid://c4il0oe8fv85i" path="res://scripts/camera_2d.gd" id="2_sugp2"]
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_tbgi4"]
+polygon = PackedVector2Array(-16, -16, 16, -16, 16, 16, -16, 16)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_tefeu"]
+polygon = PackedVector2Array(-16, -16, 16, -16, 16, 16, -16, 16)
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_0wfyh"]
+texture = ExtResource("1_o5qli")
+texture_region_size = Vector2i(32, 32)
+0:0/0 = 0
+0:0/0/occlusion_layer_0/polygon_0/polygon = SubResource("OccluderPolygon2D_tbgi4")
+0:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-16, -16, 16, -16, 16, 16, -16, 16)
+0:1/0 = 0
+0:1/0/occlusion_layer_0/polygon_0/polygon = SubResource("OccluderPolygon2D_tefeu")
+0:1/0/physics_layer_0/polygon_0/points = PackedVector2Array(-16, -16, 16, -16, 16, 16, -16, 16)
+
+[sub_resource type="TileSet" id="TileSet_sugp2"]
+tile_size = Vector2i(32, 32)
+occlusion_layer_0/light_mask = 1
+physics_layer_0/collision_layer = 1
+physics_layer_0/collision_mask = 6
+sources/1 = SubResource("TileSetAtlasSource_0wfyh")
+
+[node name="Main" type="Node2D" unique_id=1664708555]
+
+[node name="CanvasModulate" type="CanvasModulate" parent="." unique_id=999999999]
+color = Color(0.05, 0.05, 0.1, 1)
+
+[node name="TileMapLayer" type="TileMapLayer" parent="." unique_id=1493449909]
+tile_set = SubResource("TileSet_sugp2")
+
+[node name="Player" parent="." unique_id=36977239 instance=ExtResource("1_ab3cd")]
+position = Vector2(158, 676)
+speed = 200.0
+jump_force = -450.0
+acceleration = 1000.0
+gravity = 900.0
+gravity_scale = 1.0
+grapple_pull_speed = 600.0
+grapple_max_distance = 500.0
+extra_air_jumps = 1
+
+[node name="Camera2D" type="Camera2D" parent="Player" unique_id=2128832000]
+script = ExtResource("2_sugp2")
+max_distance_from_player = 100.0
+deadzone_radius = 50.0

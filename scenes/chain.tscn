@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://cjj8o4d6tyjtf" path="res://scripts/chain.gd" id="1_i8vwp"]
 [ext_resource type="Texture2D" uid="uid://5ltf3cw0fdk2" path="res://assets/chain.png" id="1_r1vlr"]
 [ext_resource type="Script" uid="uid://dyjgg2kj2f0j1" path="res://scenes/tip.gd" id="3_6wnao"]
-[ext_resource type="Texture2D" uid="uid://im5kcslhkyfh" path="res://icon.svg" id="4_6wnao"]
+[ext_resource type="Texture2D" uid="uid://cdalidgi4u3g3" path="res://assets/New Piskel-1.png.png" id="4_6wnao"]
 
 [sub_resource type="Gradient" id="Gradient_6wnao"]
 offsets = PackedFloat32Array(0.18421052, 0.56766915)
@@ -38,17 +38,15 @@ script = ExtResource("3_6wnao")
 [node name="Hook" type="Sprite2D" parent="Tip" unique_id=1356258634]
 modulate = Color(0.25, 0.6, 0.9, 1)
 texture_filter = 1
-position = Vector2(-0.5, -2.0000024)
-scale = Vector2(0.2578125, 0.26562497)
+position = Vector2(1, 1)
+scale = Vector2(1.0820313, 1.0703125)
 texture = ExtResource("4_6wnao")
 
 [node name="PointLight2D" type="PointLight2D" parent="Tip/Hook" unique_id=6560930]
-top_level = true
-color = Color(0.45, 0.85, 1, 1)
-energy = 9.35
+color = Color(0.2722819, 0.87484723, 0.99999994, 1)
 shadow_enabled = true
 texture = SubResource("GradientTexture2D_qlifr")
-texture_scale = 6.0
+texture_scale = 1.5
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Tip" unique_id=447201310]
 shape = SubResource("CapsuleShape2D_6wnao")

@@ -40,6 +40,15 @@ modifications/2 = SubResource("SkeletonModification2DLookAt_fjrip")
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ur7pv"]
 resource_local_to_scene = true
 
+[sub_resource type="Gradient" id="Gradient_plght"]
+offsets = PackedFloat32Array(0.18421052, 0.56766915)
+colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_plght"]
+gradient = SubResource("Gradient_plght")
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+
 [node name="Player" type="Node2D" unique_id=36977239]
 script = ExtResource("1_g2els")
 
@@ -210,5 +219,12 @@ z_index = 1000
 script = ExtResource("3_v9bzi")
 thickness = 10.0
 color = Color(1, 1, 1, 0.8)
+
+[node name="PointLight2D" type="PointLight2D" parent="." unique_id=456123789]
+color = Color(0.5918147, 0.8814834, 0.9999998, 1)
+energy = 0.5
+shadow_enabled = true
+texture = SubResource("GradientTexture2D_plght")
+texture_scale = 4.0
 
 [node name="Chain" parent="." unique_id=-1307312975 instance=ExtResource("2_b4u8q")]

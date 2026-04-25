@@ -20,7 +20,7 @@ const LIGHT_MASK: int = 1
 @onready var crosshair: Crosshair = $Crosshair
 @onready var player_light: PointLight2D = $PointLight2D
 
-var tile_map: TileMap = null
+var tile_map: TileMapLayer = null
 var hook_tip: HookTip = null
 var center_rigidbody: RigidBody2D = null
 var softbody_base_scale_x: float = 1.0
@@ -46,8 +46,8 @@ func _ready() -> void:
 		push_warning("Crosshair missing. The aiming system may not work.")
 
 	var parent_node: Node = get_parent()
-	if parent_node != null and parent_node.has_node("TileMap"):
-		var found_tile_map: TileMap = parent_node.get_node("TileMap") as TileMap
+	if parent_node != null and parent_node.has_node("TileMapLayer"):
+		var found_tile_map: TileMapLayer = parent_node.get_node("TileMapLayer") as TileMapLayer
 		if found_tile_map != null and player_light != null:
 			tile_map = found_tile_map
 			tile_map.light_mask = LIGHT_MASK
@@ -64,31 +64,34 @@ func _ready() -> void:
 	# Add trail effect to make it feel alive!
 	var trail = GPUParticles2D.new()
 	trail.name = "Trail"
-	trail.amount = 30
+	trail.amount = 15
 	trail.lifetime = 0.5
 	trail.local_coords = false
+	var trail_mat = CanvasItemMaterial.new()
+	trail_mat.light_mode = CanvasItemMaterial.LIGHT_MODE_UNSHADED
+	trail.material = trail_mat
 	var mat = ParticleProcessMaterial.new()
 	mat.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_SPHERE
 	mat.emission_sphere_radius = 12.0
 	mat.gravity = Vector3(0, -30, 0)
 	mat.scale_min = 4.0
 	mat.scale_max = 10.0
-	mat.color = Color(0.2, 0.7, 0.9, 0.4)
+	mat.color = Color.WHITE
 	trail.process_material = mat
 	add_child(trail)
 
 	call_deferred("_initialize_softbody")
 
-func _configure_tilemap_lighting(map: TileMap) -> void:
+func _configure_tilemap_lighting(map: TileMapLayer) -> void:
 	if map == null:
 		return
-	var material: CanvasItemMaterial = null
+	var new_material: CanvasItemMaterial = null
 	if map.material is CanvasItemMaterial:
-		material = map.material as CanvasItemMaterial
+		new_material = map.material as CanvasItemMaterial
 	else:
-		material = CanvasItemMaterial.new()
-		map.material = material
-	material.light_mode = CanvasItemMaterial.LIGHT_MODE_NORMAL
+		new_material = CanvasItemMaterial.new()
+		map.material = new_material
+	new_material.light_mode = CanvasItemMaterial.LIGHT_MODE_NORMAL
 
 func _generate_circle_texture_and_polygon(radius: float) -> void:
 	var size = int(radius * 2.0)
@@ -328,6 +331,8 @@ func apply_grapple_pull(delta: float) -> void:
 	if Input.is_action_pressed("left"):
 		swing_input -= 1.0
 		
+	var jump_pressed := Input.is_action_just_pressed("jump")
+		
 	grapple_velocity.x += swing_input * speed * 0.5
 	grapple_velocity.y += gravity * delta * 0.3
 	
@@ -349,12 +354,44 @@ func apply_grapple_pull(delta: float) -> void:
 				# Apply a gentle torque to give it a spinning effect while grappling
 				rb.apply_torque(grapple_velocity.x * 20.0)
 				
+				if jump_pressed:
+					# Apply a strong tangential force to go round the platform
+					var tangent = Vector2(-direction.y, direction.x)
+					var side = 1.0
+					if swing_input != 0.0:
+						side = sign(swing_input) * sign(tangent.x)
+					elif rb.linear_velocity.x != 0.0:
+						side = sign(rb.linear_velocity.x) * sign(tangent.x)
+					
+					var swing_dir = tangent * side
+					if swing_dir.y > 0.0:
+						swing_dir = -swing_dir # Force it to swing upwards
+						
+					rb.linear_velocity = swing_dir * 1000.0 + Vector2(0, jump_force)
+					
 				# Dampen extreme velocities smoothly
 				var current_speed = rb.linear_velocity.length()
 				if current_speed > grapple_pull_speed * 1.5:
 					rb.linear_velocity = rb.linear_velocity.move_toward(rb.linear_velocity.normalized() * grapple_pull_speed, delta * grapple_pull_speed * 2.0)
-					
+
+		if jump_pressed:
+			release()
+			return
+
 	elif center_rigidbody:
+		if jump_pressed:
+			var tangent = Vector2(-direction.y, direction.x)
+			var side = 1.0
+			if swing_input != 0.0:
+				side = sign(swing_input) * sign(tangent.x)
+			elif center_rigidbody.linear_velocity.x != 0.0:
+				side = sign(center_rigidbody.linear_velocity.x) * sign(tangent.x)
+			var swing_dir = tangent * side
+			if swing_dir.y > 0.0:
+				swing_dir = -swing_dir
+			center_rigidbody.linear_velocity = swing_dir * 1000.0 + Vector2(0, jump_force)
+			release()
+			return
 		center_rigidbody.linear_velocity = grapple_velocity
 
 
