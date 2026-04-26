@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://gv6x7m0b8m14"
-path="res://.godot/imported/rope_segment_frame_0_1777146718.png-e70bd5b6ffc1d365f498a9d6bee5fe9e.ctex"
+uid="uid://dl1u85w31mvwc"
+path="res://.godot/imported/dark_cave_tile_1777146706.png-97a70dd9a0935e2ce35f8719905e775d.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/generated/rope_segment_frame_0_1777146718.png"
-dest_files=["res://.godot/imported/rope_segment_frame_0_1777146718.png-e70bd5b6ffc1d365f498a9d6bee5fe9e.ctex"]
+source_file="res://assets/g/dark_cave_tile_1777146706.png"
+dest_files=["res://.godot/imported/dark_cave_tile_1777146706.png-97a70dd9a0935e2ce35f8719905e775d.ctex"]
 
 [params]
 

@@ -61,7 +61,7 @@ func _ready() -> void:
 
 	air_jumps_remaining = max(extra_air_jumps, 0)
 
-	# Add trail effect to make it feel alive!
+	
 	var trail = GPUParticles2D.new()
 	trail.name = "Trail"
 	trail.amount = 15
@@ -142,14 +142,14 @@ func _initialize_softbody() -> void:
 
 	center_rigidbody.gravity_scale = gravity_scale
 	
-	# Create bouncy material dynamically so all bones get it when generated
+
 	var bouncy_mat = PhysicsMaterial.new()
 	bouncy_mat.bounce = 0.5
 	bouncy_mat.friction = 0.8
 	
 	softbody_node.physics_material_override = bouncy_mat
 
-	# Make the softbody slightly harder / stiffer
+
 	var rigid_bodies: Array = softbody_node.get_rigid_bodies()
 	for rb_data in rigid_bodies:
 		if "rigidbody" in rb_data and rb_data.rigidbody is RigidBody2D:
@@ -354,20 +354,7 @@ func apply_grapple_pull(delta: float) -> void:
 				# Apply a gentle torque to give it a spinning effect while grappling
 				rb.apply_torque(grapple_velocity.x * 20.0)
 				
-				if jump_pressed:
-					# Apply a strong tangential force to go round the platform
-					var tangent = Vector2(-direction.y, direction.x)
-					var side = 1.0
-					if swing_input != 0.0:
-						side = sign(swing_input) * sign(tangent.x)
-					elif rb.linear_velocity.x != 0.0:
-						side = sign(rb.linear_velocity.x) * sign(tangent.x)
-					
-					var swing_dir = tangent * side
-					if swing_dir.y > 0.0:
-						swing_dir = -swing_dir # Force it to swing upwards
-						
-					rb.linear_velocity = swing_dir * 1000.0 + Vector2(0, jump_force)
+
 					
 				# Dampen extreme velocities smoothly
 				var current_speed = rb.linear_velocity.length()
@@ -401,3 +388,7 @@ func get_player_position() -> Vector2:
 	if softbody_node != null:
 		return softbody_node.global_position
 	return global_position
+
+
+func _on_area_2d_body_entered(body: Node2D) -> void:
+	get_tree().reload_current_scene()

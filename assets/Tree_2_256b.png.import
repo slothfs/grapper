@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bgpqmlw43cj50"
-path="res://.godot/imported/dark_cave_tile_frame_0_1777146706.png-b3a807af1a24ecf0abe7715510e38e95.ctex"
+uid="uid://b7xfoaq118g2g"
+path="res://.godot/imported/Tree_2_256b.png-30dc6b3efa431ae67ae05371913fa0e2.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/generated/dark_cave_tile_frame_0_1777146706.png"
-dest_files=["res://.godot/imported/dark_cave_tile_frame_0_1777146706.png-b3a807af1a24ecf0abe7715510e38e95.ctex"]
+source_file="res://assets/Tree_2_256b.png"
+dest_files=["res://.godot/imported/Tree_2_256b.png-30dc6b3efa431ae67ae05371913fa0e2.ctex"]
 
 [params]
 
