@@ -1,0 +1,20 @@
+[gd_scene format=3 uid="uid://cemkxvldx37yj"]
+
+[ext_resource type="Texture2D" uid="uid://dt5a32m5l2kof" path="res://assets/rocket/meteor/met.png" id="1_pxso2"]
+[ext_resource type="PackedScene" uid="uid://1poeuyw07ci3" path="res://scenes/kill_zone.tscn" id="2_83eji"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_8tfog"]
+radius = 74.0
+
+[node name="Meteor" type="Node2D" unique_id=126973961]
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=607350159]
+rotation = 3.0755568
+scale = Vector2(0.02955296, -0.03114063)
+texture = ExtResource("1_pxso2")
+
+[node name="KillZone" parent="." unique_id=417755415 instance=ExtResource("2_83eji")]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="KillZone" unique_id=239887285]
+position = Vector2(-3, 4)
+shape = SubResource("CircleShape2D_8tfog")

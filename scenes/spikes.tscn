@@ -1,3 +1,27 @@
 [gd_scene format=3 uid="uid://chjx8fd1pfxo6"]
 
+[ext_resource type="Texture2D" uid="uid://b7cogamkfhmsn" path="res://assets/Spikes/Spikes/4 Conjoined Spikes.png" id="1_xbcdo"]
+[ext_resource type="PackedScene" uid="uid://1poeuyw07ci3" path="res://scenes/kill_zone.tscn" id="2_bflj7"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_xbcdo"]
+size = Vector2(42, 9)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_kd5gq"]
+size = Vector2(42, 10)
+
 [node name="Spikes" type="Node2D" unique_id=1890611533]
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1288318043]
+texture_filter = 1
+texture = ExtResource("1_xbcdo")
+
+[node name="Area2D" type="Area2D" parent="Sprite2D" unique_id=1914387038]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Sprite2D/Area2D" unique_id=634238830]
+position = Vector2(0, -0.5)
+shape = SubResource("RectangleShape2D_xbcdo")
+
+[node name="KillZone" parent="." unique_id=417755415 instance=ExtResource("2_bflj7")]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="KillZone" unique_id=22438907]
+shape = SubResource("RectangleShape2D_kd5gq")
