@@ -1,22 +1,56 @@
-[gd_scene format=3 uid="uid://dnxq8abbktwgn"]
+[gd_scene format=3 uid="uid://bytk01vor46ha"]
 
 [ext_resource type="Script" uid="uid://oa8nkntprfr8" path="res://scripts/player_rocket.gd" id="1_w7em1"]
 [ext_resource type="Texture2D" uid="uid://d08h4dpxksep4" path="res://assets/rocket/rocket.png" id="2_r6bys"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_mgda0"]
-radius = 1222.4717
-height = 5040.1997
+radius = 17.5
+height = 35.0
 
-[node name="PlayerRocket" type="CharacterBody2D" unique_id=640776716]
-collision_layer = 2
-collision_mask = 6
+[sub_resource type="CircleShape2D" id="CircleShape2D_boarding"]
+radius = 50.0
+
+[node name="PlayerRocket" type="CharacterBody2D" unique_id=325463899 groups=["rocket"]]
+collision_layer = 8
 script = ExtResource("1_w7em1")
 
-[node name="Sprite2D" type="Sprite2D" parent="." unique_id=684223534]
-position = Vector2(-1.9999999, -4.7683716e-07)
-scale = Vector2(0.08589155, 0.080155544)
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=538233267]
+position = Vector2(-2, 0)
+scale = Vector2(0.086, 0.08)
 texture = ExtResource("2_r6bys")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Sprite2D" unique_id=1155151716]
-position = Vector2(-1.3879046e-06, -823.399)
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=2008508360]
+position = Vector2(-2, 0)
 shape = SubResource("CapsuleShape2D_mgda0")
+
+[node name="BoardingArea" type="Area2D" parent="." unique_id=1821942879]
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BoardingArea" unique_id=1589689074]
+shape = SubResource("CircleShape2D_boarding")
+
+[node name="Particles" type="CPUParticles2D" parent="." unique_id=218626697]
+position = Vector2(0, 16)
+emitting = false
+amount = 40
+lifetime = 0.5
+emission_shape = 1
+emission_sphere_radius = 5.0
+direction = Vector2(0, 1)
+spread = 20.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 200.0
+initial_velocity_max = 300.0
+scale_amount_min = 2.0
+scale_amount_max = 5.0
+color = Color(1, 0.5, 0, 1)
+
+[node name="Light" type="PointLight2D" parent="." unique_id=1146600993]
+energy = 1.5
+texture_scale = 3.0
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=173998174]
+enabled = false
+zoom = Vector2(0.8, 0.8)
+position_smoothing_enabled = true

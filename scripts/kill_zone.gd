@@ -3,6 +3,9 @@ extends Area2D
 
 
 func _on_body_entered(body: Node2D) -> void:
+	if body is PlayerRocket:
+		body.reset_to_checkpoint()
+		return
 	print("you died")
 	timer.start()
 

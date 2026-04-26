@@ -4,6 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://5ltf3cw0fdk2" path="res://assets/chain.png" id="1_r1vlr"]
 [ext_resource type="Script" uid="uid://dyjgg2kj2f0j1" path="res://scenes/tip.gd" id="3_6wnao"]
 [ext_resource type="Texture2D" uid="uid://cdalidgi4u3g3" path="res://assets/New Piskel-1.png.png" id="4_6wnao"]
+[ext_resource type="AudioStream" uid="uid://blg6jo2hwbyh2" path="res://assets/sfx/hook.mp3" id="5_hook"]
 
 [sub_resource type="Gradient" id="Gradient_6wnao"]
 offsets = PackedFloat32Array(0.18421052, 0.56766915)
@@ -34,6 +35,10 @@ region_rect = Rect2(0, 0, 16, 360)
 [node name="Tip" type="CharacterBody2D" parent="." unique_id=1202475345]
 collision_layer = 4
 script = ExtResource("3_6wnao")
+
+[node name="HookSound" type="AudioStreamPlayer2D" parent="Tip" unique_id=2100000006]
+stream = ExtResource("5_hook")
+volume_db = 24.0
 
 [node name="Hook" type="Sprite2D" parent="Tip" unique_id=1356258634]
 modulate = Color(0.25, 0.6, 0.9, 1)

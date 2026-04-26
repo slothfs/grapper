@@ -19,6 +19,8 @@ const LIGHT_MASK: int = 1
 @onready var camera_2d: Camera2D = $Camera2D
 @onready var crosshair: Crosshair = $Crosshair
 @onready var player_light: PointLight2D = $PointLight2D
+@onready var jump_sound: AudioStreamPlayer2D = $JumpSound
+@onready var falling_sound: AudioStreamPlayer2D = $FallingSound
 
 var tile_map: TileMapLayer = null
 var hook_tip: HookTip = null
@@ -60,7 +62,7 @@ func _ready() -> void:
 		floor_ray.target_position = Vector2(0, 24) # Short enough for 1.0 scale
 
 	air_jumps_remaining = max(extra_air_jumps, 0)
-
+	add_to_group("player")
 	
 	var trail = GPUParticles2D.new()
 	trail.name = "Trail"
@@ -200,6 +202,23 @@ func _physics_process(delta: float) -> void:
 		apply_normal_movement(delta, on_floor_now)
 
 	update_softbody_orientation()
+	_update_falling_sound(on_floor_now)
+
+func _update_falling_sound(on_floor: bool) -> void:
+	if falling_sound == null:
+		return
+	var vertical_velocity: float = 0.0
+	if center_rigidbody != null:
+		vertical_velocity = center_rigidbody.linear_velocity.y
+	var is_descending: bool = vertical_velocity > 0.0
+	var has_hook_attached: bool = hook_tip != null and hook_tip.is_hooked
+	var should_play_sound: bool = not on_floor and is_descending and not has_hook_attached
+	if should_play_sound:
+		if not falling_sound.is_playing():
+			falling_sound.play()
+		return
+	if falling_sound.is_playing():
+		falling_sound.stop()
 
 func handle_input() -> void:
 	if Input.is_action_just_pressed("shoot"):
@@ -222,6 +241,9 @@ func apply_normal_movement(delta: float, on_floor: bool) -> void:
 		elif air_jumps_remaining > 0:
 			should_jump = true
 			air_jumps_remaining -= 1
+
+	if should_jump and jump_sound != null:
+		jump_sound.play()
 
 	if softbody_node:
 		var rigid_bodies: Array = softbody_node.get_rigid_bodies()

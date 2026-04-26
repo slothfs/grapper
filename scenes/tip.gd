@@ -8,6 +8,7 @@ var flight_timer: float = 0.0
 
 var particles: GPUParticles2D
 var hook_sprite: Sprite2D
+@onready var hook_hit_sound: AudioStreamPlayer2D = $HookSound
 
 func _ready() -> void:
 	hook_sprite = get_node_or_null("Hook") as Sprite2D
@@ -101,7 +102,9 @@ func _physics_process(delta: float) -> void:
 			# Stick to the wall
 			velocity = Vector2.ZERO
 			is_hooked = true
-			
+			if hook_hit_sound != null:
+				hook_hit_sound.play()
+
 			# Visual bouncy effect
 			if hook_sprite:
 				var tween = create_tween()
