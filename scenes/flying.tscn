@@ -1,5 +1,6 @@
 [gd_scene format=3 uid="uid://cmfx5yyqs0606"]
 
+[ext_resource type="Script" path="res://scripts/flying.gd" id="1_flying_script"]
 [ext_resource type="Texture2D" uid="uid://d2lcmj6qhbsvq" path="res://assets/player/bat.png" id="1_ertuq"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_itql5"]
@@ -49,6 +50,7 @@ animations = [{
 radius = 9.0
 
 [node name="flying" type="Node2D" unique_id=666050338]
+script = ExtResource("1_flying_script")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1184785800]
 texture_filter = 1

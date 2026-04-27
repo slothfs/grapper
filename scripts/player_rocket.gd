@@ -127,7 +127,7 @@ func _physics_process(delta: float) -> void:
 
 	# 2. Get vectors relative to where the rocket is pointing
 	var forward_vector = Vector2.UP.rotated(rotation)
-	var side_vector = Vector2.RIGHT.rotated(rotation)
+	var _side_vector = Vector2.RIGHT.rotated(rotation)
 
 	# 3. Apply Gravity (Always pulling down)
 	velocity.y += gravity * delta

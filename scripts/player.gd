@@ -28,7 +28,6 @@ const DEFAULT_GRADIENT_EXPONENT: float = 1.25
 @onready var softbody_node: SoftBody2D = $SoftBody2D
 @onready var floor_ray: RayCast2D = $FloorRay
 @onready var chain_node: Node2D = $Chain
-@onready var camera_2d: Camera2D = $Camera2D
 @onready var crosshair: Crosshair = $Crosshair
 @onready var player_light: PointLight2D = $PointLight2D
 @onready var brightness_source: CanvasModulate = null
@@ -57,8 +56,6 @@ func _ready() -> void:
 	else:
 		push_error("Hook Tip (Chain/Tip) not found! Check scene structure.")
 
-	if camera_2d == null:
-		push_warning("Camera2D missing. The camera will not follow the player.")
 	if crosshair == null:
 		push_warning("Crosshair missing. The aiming system may not work.")
 
@@ -128,18 +125,18 @@ func _calculate_color_brightness(color: Color) -> float:
 	brightness += color.b * BRIGHTNESS_WEIGHTS.z
 	return clamp(brightness, 0.0, 1.0)
 
-func _get_shader_color_parameter(name: String, default_color: Color) -> Color:
+func _get_shader_color_parameter(param_name: String, default_color: Color) -> Color:
 	if gradient_shader == null:
 		return default_color
-	var param_value = gradient_shader.get_shader_parameter(name)
+	var param_value = gradient_shader.get_shader_parameter(param_name)
 	if param_value is Color:
 		return param_value
 	return default_color
 
-func _get_shader_float_parameter(name: String, default_value: float) -> float:
+func _get_shader_float_parameter(param_name: String, default_value: float) -> float:
 	if gradient_shader == null:
 		return default_value
-	var param_value = gradient_shader.get_shader_parameter(name)
+	var param_value = gradient_shader.get_shader_parameter(param_name)
 	if typeof(param_value) == TYPE_FLOAT:
 		return float(param_value)
 	return default_value
@@ -207,8 +204,8 @@ func _initialize_softbody() -> void:
 
 	_generate_circle_texture_and_polygon(16.0)
 
-	softbody_node.collision_layer = 2
-	softbody_node.collision_mask = 1
+	softbody_node.collision_layer = 1
+	softbody_node.collision_mask = 1 | 2
 
 	# Force the SoftBody2D to regenerate its mesh and bones from the new circular texture
 	softbody_node.create_softbody2d(true)
@@ -236,6 +233,8 @@ func _initialize_softbody() -> void:
 		if "rigidbody" in rb_data and rb_data.rigidbody is RigidBody2D:
 			var rb: RigidBody2D = rb_data.rigidbody
 			rb.physics_material_override = bouncy_mat
+			rb.collision_layer = softbody_node.collision_layer
+			rb.collision_mask = softbody_node.collision_mask
 		if "joints" in rb_data:
 			for joint in rb_data.joints:
 				if joint is PinJoint2D:
@@ -493,5 +492,5 @@ func get_player_position() -> Vector2:
 	return global_position
 
 
-func _on_area_2d_body_entered(body: Node2D) -> void:
+func _on_area_2d_body_entered(_body: Node2D) -> void:
 	get_tree().reload_current_scene()
