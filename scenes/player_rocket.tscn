@@ -8,7 +8,7 @@ radius = 17.5
 height = 35.0
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_boarding"]
-radius = 50.0
+radius = 62.76942
 
 [node name="PlayerRocket" type="CharacterBody2D" unique_id=325463899 groups=["rocket"]]
 collision_layer = 8
