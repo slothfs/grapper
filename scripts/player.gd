@@ -10,8 +10,20 @@ class_name Player
 @export var grapple_max_distance: float = 500.0
 @export var extra_air_jumps: int = 1
 
+@export var min_light_energy: float = 0.5
+@export var max_light_energy: float = 1.2
+@export var brightness_adjust_speed: float = 2.0
+@export var brightness_source_path: NodePath = NodePath("../CanvasModulate")
+@export var gradient_source_path: NodePath = NodePath("../BG/BackgroundGradient")
+@export var gradient_top_y: float = -15000.0
+@export var gradient_bottom_y: float = 5000.0
+
 const HOOK_SPEED: float = 900.0
 const LIGHT_MASK: int = 1
+const BRIGHTNESS_WEIGHTS: Vector3 = Vector3(0.299, 0.587, 0.114)
+const DEFAULT_GRADIENT_TOP_COLOR: Color = Color(0.09, 0.02, 0.16, 1.0)
+const DEFAULT_GRADIENT_BOTTOM_COLOR: Color = Color(0.02, 0.03, 0.14, 1.0)
+const DEFAULT_GRADIENT_EXPONENT: float = 1.25
 
 @onready var softbody_node: SoftBody2D = $SoftBody2D
 @onready var floor_ray: RayCast2D = $FloorRay
@@ -19,6 +31,9 @@ const LIGHT_MASK: int = 1
 @onready var camera_2d: Camera2D = $Camera2D
 @onready var crosshair: Crosshair = $Crosshair
 @onready var player_light: PointLight2D = $PointLight2D
+@onready var brightness_source: CanvasModulate = null
+@onready var background_gradient: ColorRect = null
+@onready var gradient_shader: ShaderMaterial = null
 @onready var jump_sound: AudioStreamPlayer2D = $JumpSound
 @onready var falling_sound: AudioStreamPlayer2D = $FallingSound
 
@@ -47,7 +62,10 @@ func _ready() -> void:
 	if crosshair == null:
 		push_warning("Crosshair missing. The aiming system may not work.")
 
+	brightness_source = get_node_or_null(brightness_source_path) as CanvasModulate
 	var parent_node: Node = get_parent()
+	if brightness_source == null and parent_node != null and parent_node.has_node("CanvasModulate"):
+		brightness_source = parent_node.get_node("CanvasModulate") as CanvasModulate
 	if parent_node != null and parent_node.has_node("TileMapLayer"):
 		var found_tile_map: TileMapLayer = parent_node.get_node("TileMapLayer") as TileMapLayer
 		if found_tile_map != null and player_light != null:
@@ -57,6 +75,15 @@ func _ready() -> void:
 			player_light.light_mask = LIGHT_MASK
 			player_light.range_item_cull_mask = LIGHT_MASK
 			player_light.shadow_item_cull_mask = LIGHT_MASK
+
+	background_gradient = get_node_or_null(gradient_source_path) as ColorRect
+	if background_gradient == null and parent_node != null and parent_node.has_node("BG/BackgroundGradient"):
+		background_gradient = parent_node.get_node("BG/BackgroundGradient") as ColorRect
+	if background_gradient != null:
+		if background_gradient.material is ShaderMaterial:
+			gradient_shader = background_gradient.material as ShaderMaterial
+		else:
+			push_warning("BackgroundGradient does not have a ShaderMaterial assigned.")
 
 	if floor_ray != null:
 		floor_ray.target_position = Vector2(0, 24) # Short enough for 1.0 scale
@@ -94,6 +121,58 @@ func _configure_tilemap_lighting(map: TileMapLayer) -> void:
 		new_material = CanvasItemMaterial.new()
 		map.material = new_material
 	new_material.light_mode = CanvasItemMaterial.LIGHT_MODE_NORMAL
+
+func _calculate_color_brightness(color: Color) -> float:
+	var brightness: float = color.r * BRIGHTNESS_WEIGHTS.x
+	brightness += color.g * BRIGHTNESS_WEIGHTS.y
+	brightness += color.b * BRIGHTNESS_WEIGHTS.z
+	return clamp(brightness, 0.0, 1.0)
+
+func _get_shader_color_parameter(name: String, default_color: Color) -> Color:
+	if gradient_shader == null:
+		return default_color
+	var param_value = gradient_shader.get_shader_parameter(name)
+	if param_value is Color:
+		return param_value
+	return default_color
+
+func _get_shader_float_parameter(name: String, default_value: float) -> float:
+	if gradient_shader == null:
+		return default_value
+	var param_value = gradient_shader.get_shader_parameter(name)
+	if typeof(param_value) == TYPE_FLOAT:
+		return float(param_value)
+	return default_value
+
+func _calculate_gradient_brightness() -> float:
+	var brightness: float = -1.0
+	if gradient_shader == null:
+		return brightness
+	var top_color: Color = _get_shader_color_parameter("top_color", DEFAULT_GRADIENT_TOP_COLOR)
+	var bottom_color: Color = _get_shader_color_parameter("bottom_color", DEFAULT_GRADIENT_BOTTOM_COLOR)
+	var exponent_value: float = _get_shader_float_parameter("gradient_exponent", DEFAULT_GRADIENT_EXPONENT)
+	var y_range: float = gradient_bottom_y - gradient_top_y
+	if abs(y_range) < 0.001:
+		y_range = 0.001
+	var normalized_y: float = clamp((global_position.y - gradient_top_y) / y_range, 0.0, 1.0)
+	var gradient_value: float = pow(normalized_y, max(exponent_value, 0.001))
+	var sampled_color: Color = bottom_color.lerp(top_color, gradient_value)
+	return _calculate_color_brightness(sampled_color)
+
+func _update_light_energy(delta: float) -> void:
+	if player_light == null:
+		return
+	var canvas_brightness: float = 1.0
+	if brightness_source != null:
+		canvas_brightness = _calculate_color_brightness(brightness_source.color)
+	var gradient_brightness: float = _calculate_gradient_brightness()
+	var brightness: float = canvas_brightness
+	if gradient_brightness >= 0.0:
+		brightness = min(canvas_brightness, gradient_brightness)
+	var desired_energy: float = lerp(max_light_energy, min_light_energy, brightness)
+	desired_energy = clamp(desired_energy, min_light_energy, max_light_energy)
+	var blend: float = clamp(brightness_adjust_speed * delta, 0.0, 1.0)
+	player_light.energy = lerp(player_light.energy, desired_energy, blend)
 
 func _generate_circle_texture_and_polygon(radius: float) -> void:
 	var size = int(radius * 2.0)
@@ -187,6 +266,8 @@ func _physics_process(delta: float) -> void:
 		
 	if player_light != null:
 		player_light.global_position = get_player_position()
+
+	_update_light_energy(delta)
 
 	handle_input()
 

@@ -1,0 +1,57 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://p85lxb85a6n7"]
+
+[sub_resource type="Shader" id="Shader_8nyqp"]
+code = "shader_type canvas_item;
+	
+	uniform vec4 top_color : source_color = vec4(0.09, 0.02, 0.16, 1.0);
+	uniform vec4 bottom_color : source_color = vec4(0.02, 0.03, 0.14, 1.0);
+	uniform float gradient_exponent : hint_range(0.5, 3.0) = 1.25;
+	uniform float noise_strength : hint_range(0.0, 0.5) = 0.16;
+	uniform float noise_scale : hint_range(0.5, 6.0) = 2.5;
+	uniform float star_threshold : hint_range(0.8, 1.0) = 0.97;
+	uniform float star_density : hint_range(50.0, 400.0) = 200.0;
+	uniform float star_bloom : hint_range(0.0, 0.25) = 0.12;
+	uniform float time_speed : hint_range(-1.0, 1.0) = 0.12;
+	
+	float rand(vec2 p) {
+		return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
+	}
+	
+	float noise(vec2 p) {
+		vec2 i = floor(p);
+		vec2 f = fract(p);
+		vec2 u = f * f * (3.0 - 2.0 * f);
+		float a = rand(i);
+		float b = rand(i + vec2(1.0, 0.0));
+		float c = rand(i + vec2(0.0, 1.0));
+		float d = rand(i + vec2(1.0, 1.0));
+		return mix(mix(a, b, u.x), mix(c, d, u.x), u.y);
+	}
+	
+	void fragment() {
+		vec2 uv = UV;
+		float gradient = pow(uv.y, gradient_exponent);
+		vec4 base = mix(bottom_color, top_color, gradient);
+		float drift = TIME * time_speed;
+		float n = noise((uv + vec2(drift, drift * 0.4)) * noise_scale);
+		float noise_layer = (n - 0.5) * 2.0 * noise_strength;
+		float star_rand = rand(floor(uv * star_density));
+		float stars = smoothstep(star_threshold, 1.0, star_rand);
+		float star_layer = stars * star_bloom;
+		vec3 star_color = mix(vec3(0.7, 0.8, 1.0), base.rgb, 0.55);
+		vec3 combined = base.rgb + vec3(noise_layer) + star_layer * star_color;
+		COLOR = vec4(clamp(combined, 0.0, 1.0), 1.0);
+	}
+	"
+
+[resource]
+shader = SubResource("Shader_8nyqp")
+shader_parameter/top_color = Color(0.09, 0.02, 0.16, 1)
+shader_parameter/bottom_color = Color(0.02, 0.03, 0.14, 1)
+shader_parameter/gradient_exponent = 1.25
+shader_parameter/noise_strength = 0.16
+shader_parameter/noise_scale = 2.5
+shader_parameter/star_threshold = 0.97
+shader_parameter/star_density = 200.0
+shader_parameter/star_bloom = 0.12
+shader_parameter/time_speed = 0.12

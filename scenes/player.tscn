@@ -5,8 +5,8 @@
 [ext_resource type="Texture2D" uid="uid://5xbcn0rti6dj" path="res://assets/player.png" id="2_qlg0r"]
 [ext_resource type="Script" uid="uid://kol6k5y6rb8a" path="res://addons/softbody2d/softbody2d.gd" id="3_tuyoq"]
 [ext_resource type="Script" uid="uid://12erigejv7vt" path="res://scripts/crosshair.gd" id="3_v9bzi"]
-[ext_resource type="AudioStream" uid="uid://jump_sound" path="res://assets/sfx/jump-sound.mp3" id="4_jump"]
-[ext_resource type="AudioStream" uid="uid://fall_sound" path="res://assets/sfx/falling-sound.mp3" id="5_fall"]
+[ext_resource type="AudioStream" uid="uid://jxwkwrxdfal1" path="res://assets/sfx/jump-sound.mp3" id="4_jump"]
+[ext_resource type="AudioStream" uid="uid://brlx2jftnxvx1" path="res://assets/sfx/falling-sound.mp3" id="5_fall"]
 
 [sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_qlg0r"]
 
@@ -53,7 +53,18 @@ fill_from = Vector2(0.5, 0.5)
 
 [node name="Player" type="Node2D" unique_id=36977239]
 script = ExtResource("1_g2els")
+speed = null
+jump_force = null
+acceleration = null
+gravity = null
+gravity_scale = null
+grapple_pull_speed = null
 grapple_max_distance = 100.0
+extra_air_jumps = null
+min_light_energy = null
+max_light_energy = null
+brightness_adjust_speed = null
+brightness_source_path = null
 
 [node name="SoftBody2D" type="Polygon2D" parent="." unique_id=2005940994]
 texture_filter = 1
@@ -232,10 +243,8 @@ texture_scale = 4.0
 
 [node name="JumpSound" type="AudioStreamPlayer2D" parent="." unique_id=2100000003]
 stream = ExtResource("4_jump")
-autoplay = false
 
 [node name="FallingSound" type="AudioStreamPlayer2D" parent="." unique_id=2100000004]
 stream = ExtResource("5_fall")
-autoplay = false
 
 [node name="Chain" parent="." unique_id=-1307312975 instance=ExtResource("2_b4u8q")]

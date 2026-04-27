@@ -1,0 +1,13 @@
+[gd_resource type="ShaderMaterial" format=3]
+
+[ext_resource type="Shader" path="res://background_space.gdshader" id="1_wolpd"]
+
+[resource]
+shader = ExtResource("1_wolpd")
+shader_parameter/ground_color = null
+shader_parameter/twilight_color = null
+shader_parameter/space_color = null
+shader_parameter/aurora_color = null
+shader_parameter/star_color = null
+shader_parameter/time_speed = null
+shader_parameter/aurora_strength = null

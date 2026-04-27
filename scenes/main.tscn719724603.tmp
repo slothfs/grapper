@@ -10,7 +10,7 @@
 [ext_resource type="PackedScene" uid="uid://chjx8fd1pfxo6" path="res://scenes/spikes.tscn" id="10_choun"]
 [ext_resource type="PackedScene" uid="uid://bytk01vor46ha" path="res://scenes/player_rocket.tscn" id="11_ya4ey"]
 [ext_resource type="PackedScene" uid="uid://cemkxvldx37yj" path="res://scenes/meteor.tscn" id="12_eb6dy"]
-[ext_resource type="Material" uid="uid://p85lxb85a6n7" path="res://assets/background_space_material.tres" id="background_space_material"]
+[ext_resource type="Material" path="res://assets/background_space_material.tres" id="background_space_material"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_tipki"]
 texture = ExtResource("1_tefeu")
@@ -261,17 +261,6 @@ tile_set = SubResource("TileSet_sugp2")
 
 [node name="Player" parent="." unique_id=36977239 instance=ExtResource("1_ab3cd")]
 position = Vector2(497, 713)
-speed = 200.0
-jump_force = -450.0
-acceleration = 1000.0
-gravity = 900.0
-gravity_scale = 1.0
-grapple_pull_speed = 600.0
-extra_air_jumps = 1
-min_light_energy = 0.5
-max_light_energy = 1.2
-brightness_adjust_speed = 2.0
-brightness_source_path = NodePath("../CanvasModulate")
 
 [node name="Camera2D" type="Camera2D" parent="Player" unique_id=2128832000]
 zoom = Vector2(0.8, 0.8)
@@ -368,7 +357,6 @@ position = Vector2(8000, -12054)
 
 [node name="Landing area" type="Area2D" parent="." unique_id=1674865518]
 position = Vector2(1949, -12802)
-collision_mask = 8
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Landing area" unique_id=587364776]
 position = Vector2(243, 119.5)

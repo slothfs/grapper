@@ -19,6 +19,10 @@ run/main_scene="uid://8n6femxmdky"
 config/features=PackedStringArray("4.6", "GL Compatibility")
 config/icon="res://icon.svg"
 
+[autoload]
+
+LandingAreaManager="res://scripts/landing_area_manager.gd"
+
 [display]
 
 window/size/viewport_width=1900
