@@ -53,18 +53,7 @@ fill_from = Vector2(0.5, 0.5)
 
 [node name="Player" type="Node2D" unique_id=36977239]
 script = ExtResource("1_g2els")
-speed = null
-jump_force = null
-acceleration = null
-gravity = null
-gravity_scale = null
-grapple_pull_speed = null
 grapple_max_distance = 100.0
-extra_air_jumps = null
-min_light_energy = null
-max_light_energy = null
-brightness_adjust_speed = null
-brightness_source_path = null
 
 [node name="SoftBody2D" type="Polygon2D" parent="." unique_id=2005940994]
 texture_filter = 1
@@ -100,8 +89,8 @@ metadata/_local_pose_override_enabled_ = true
 
 [node name="Bone-1" type="Bone2D" parent="SoftBody2D/Skeleton2D" unique_id=1368113566]
 position = Vector2(8.660255, 17)
-rotation = 0.4404243
-scale = Vector2(1.0000002, 0.9999997)
+rotation = 0.44042426
+scale = Vector2(1.0000002, 0.99999964)
 rest = Transform2D(0.9045708, 0.42632338, -0.42632338, 0.9045708, 8.660255, 17)
 auto_calculate_length_and_angle = false
 length = 30.0
@@ -235,8 +224,7 @@ thickness = 10.0
 color = Color(1, 1, 1, 0.8)
 
 [node name="PointLight2D" type="PointLight2D" parent="." unique_id=456123789]
-color = Color(0.5918147, 0.8814834, 0.9999998, 1)
-energy = 0.5
+energy = 3.8
 shadow_enabled = true
 texture = SubResource("GradientTexture2D_plght")
 texture_scale = 4.0

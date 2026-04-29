@@ -15,22 +15,28 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 [application]
 
 config/name="Grapper"
-run/main_scene="uid://8n6femxmdky"
+run/main_scene="uid://7cv32bfcmgal"
 config/features=PackedStringArray("4.6", "GL Compatibility")
 config/icon="res://icon.svg"
 
 [autoload]
 
 LandingAreaManager="res://scripts/landing_area_manager.gd"
+_mcp_game_helper="*res://addons/godot_ai/runtime/game_helper.gd"
 
 [display]
 
-window/size/viewport_width=1900
-window/size/viewport_height=1200
+window/size/viewport_width=1280
+window/size/viewport_height=720
+window/stretch/mode="canvas_items"
 
 [editor_plugins]
 
 enabled=PackedStringArray("res://addons/godot_super-wakatime/plugin.cfg", "res://addons/softbody2d/plugin.cfg")
+
+[gui]
+
+theme/custom_font="uid://bogrmch3ruq4q"
 
 [input]
 

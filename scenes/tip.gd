@@ -64,6 +64,8 @@ func _ready() -> void:
 	particles.local_coords = false 
 	add_child(particles)
 
+	set_physics_process(true)
+
 func set_target_position(target: Vector2) -> void:
 	target_position = target
 	has_target_position = true

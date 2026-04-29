@@ -1,10 +1,10 @@
 [gd_scene format=3 uid="uid://btokans2fgwbw"]
 
 [ext_resource type="Script" uid="uid://cjj8o4d6tyjtf" path="res://scripts/chain.gd" id="1_i8vwp"]
-[ext_resource type="Texture2D" uid="uid://5ltf3cw0fdk2" path="res://assets/chain.png" id="1_r1vlr"]
 [ext_resource type="Script" uid="uid://dyjgg2kj2f0j1" path="res://scenes/tip.gd" id="3_6wnao"]
 [ext_resource type="Texture2D" uid="uid://cdalidgi4u3g3" path="res://assets/New Piskel-1.png.png" id="4_6wnao"]
 [ext_resource type="AudioStream" uid="uid://blg6jo2hwbyh2" path="res://assets/sfx/hook.mp3" id="5_hook"]
+[ext_resource type="Texture2D" uid="uid://gv6x7m0b8m14" path="res://assets/g/rope_segment_frame_0_1777146718.png" id="6_rope"]
 
 [sub_resource type="Gradient" id="Gradient_6wnao"]
 offsets = PackedFloat32Array(0.18421052, 0.56766915)
@@ -21,16 +21,14 @@ radius = 5.0
 [node name="Chain" type="Node2D" unique_id=1413433464]
 script = ExtResource("1_i8vwp")
 
-[node name="Links" type="Sprite2D" parent="." unique_id=1756805140]
+[node name="RopeLine" type="Line2D" parent="." unique_id=1823731823]
 visible = false
-modulate = Color(0, 0, 0, 1)
+z_index = 100
 texture_filter = 1
-texture_repeat = 2
-texture = ExtResource("1_r1vlr")
-centered = false
-offset = Vector2(-8, 14)
-region_enabled = true
-region_rect = Rect2(0, 0, 16, 360)
+texture_repeat = 1
+width = 12.0
+texture = ExtResource("6_rope")
+texture_mode = 1
 
 [node name="Tip" type="CharacterBody2D" parent="." unique_id=1202475345]
 collision_layer = 4

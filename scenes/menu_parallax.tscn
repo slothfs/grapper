@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://c2heg2w3k7u3"]
+
+[ext_resource type="Script" uid="uid://bcz1xhfpqk6p" path="res://scripts/menu_parallax_background.gd" id="1_xkk36"]
+
+[node name="MenuParallax" type="ParallaxBackground" unique_id=776352764]
+script = ExtResource("1_xkk36")
+
+[node name="ParallaxLayer" type="ParallaxLayer" parent="MenuParallax" unique_id=646373947]
+
+[node name="BackgroundSprite" type="Sprite2D" parent="MenuParallax/ParallaxLayer" unique_id=2022648937]
+texture = null
+modulate = Color(1.9, 1.9, 1.7, 1)
+scale = Vector2(2.3, 2.3)
+centered = false
+position = Vector2(0, -210)

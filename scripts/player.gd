@@ -20,6 +20,8 @@ class_name Player
 
 const HOOK_SPEED: float = 900.0
 const LIGHT_MASK: int = 1
+const ENVIRONMENT_COLLISION_LAYER: int = 1
+const PLAYER_COLLISION_LAYER: int = 2
 const BRIGHTNESS_WEIGHTS: Vector3 = Vector3(0.299, 0.587, 0.114)
 const DEFAULT_GRADIENT_TOP_COLOR: Color = Color(0.09, 0.02, 0.16, 1.0)
 const DEFAULT_GRADIENT_BOTTOM_COLOR: Color = Color(0.02, 0.03, 0.14, 1.0)
@@ -51,7 +53,7 @@ var air_jumps_remaining: int = 0
 func _ready() -> void:
 	if chain_node != null and chain_node.has_node("Tip"):
 		hook_tip = chain_node.get_node("Tip") as HookTip
-		hook_tip.collision_mask = 1 # Ensure hook only collides with environment
+		hook_tip.collision_mask = ENVIRONMENT_COLLISION_LAYER # Ensure hook only collides with environment
 		hook_tip.collision_layer = 4
 	else:
 		push_error("Hook Tip (Chain/Tip) not found! Check scene structure.")
@@ -204,8 +206,8 @@ func _initialize_softbody() -> void:
 
 	_generate_circle_texture_and_polygon(16.0)
 
-	softbody_node.collision_layer = 1
-	softbody_node.collision_mask = 1 | 2
+	softbody_node.collision_layer = PLAYER_COLLISION_LAYER
+	softbody_node.collision_mask = ENVIRONMENT_COLLISION_LAYER | PLAYER_COLLISION_LAYER
 
 	# Force the SoftBody2D to regenerate its mesh and bones from the new circular texture
 	softbody_node.create_softbody2d(true)

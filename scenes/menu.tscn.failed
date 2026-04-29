@@ -1,0 +1,138 @@
+[gd_scene format=3 uid="uid://7cv32bfcmgal"]
+
+[ext_resource type="Shader" uid="uid://ofidmecgthiv" path="res://scenes/menu.gdshader" id="1_vjb58"]
+[ext_resource type="Texture2D" uid="uid://cxol8t6qxhhhp" path="res://assets/bgcloud/Screenshot 2026-04-27 165118.png" id="2_con2f"]
+[ext_resource type="Texture2D" uid="uid://d0ybp5d24hq37" path="res://assets/Setting_logo.png" id="3_con2f"]
+[ext_resource type="Script" uid="uid://b04ijaavvugx" path="res://scripts/texture_button.gd" id="4_mhnvy"]
+[ext_resource type="Texture2D" uid="uid://ctjyn4kfgn4ej" path="res://assets/mute.png" id="5_g3eks"]
+[ext_resource type="Texture2D" uid="uid://cfnvv01kmbnta" path="res://assets/muted.png" id="6_v86rl"]
+[ext_resource type="Texture2D" uid="uid://do6v60gukw6lc" path="res://assets/exit.png" id="7_v86rl"]
+[ext_resource type="Texture2D" uid="uid://bvdrud8v5tjbv" path="res://assets/parallaxx.png" id="8_pjq5d"]
+[ext_resource type="Script" uid="uid://cdk0pwpfggwbj" path="res://scripts/menu_parallax_background.gd" id="9_x4kk6"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_mhnvy"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mhnvy"]
+bg_color = Color(0.0666667, 0.0666667, 0.1882353, 0.35)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_vjb58"]
+shader = ExtResource("1_vjb58")
+shader_parameter/shake_strength = 0.005
+shader_parameter/glitch_strength = 0.01
+shader_parameter/speed = 2.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_v86rl"]
+bg_color = Color(0.049510323, 4.4033623e-05, 0.17449984, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_13sgg"]
+bg_color = Color(0.049510323, 4.4033623e-05, 0.17449984, 1)
+
+[node name="menu" type="Control" unique_id=1072338466]
+material = SubResource("ShaderMaterial_mhnvy")
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MenuParallax" type="ParallaxBackground" parent="." unique_id=2100000001]
+script = ExtResource("9_x4kk6")
+
+[node name="ParallaxLayer" type="ParallaxLayer" parent="MenuParallax" unique_id=2100000002]
+
+[node name="ParallaxLayer#BackgroundSprite" type="Sprite2D" parent="." unique_id=2100000003]
+modulate = Color(1.9, 1.9, 1.7, 1)
+position = Vector2(0, -210)
+scale = Vector2(2.3, 2.3)
+texture = ExtResource("8_pjq5d")
+centered = false
+
+[node name="Panel" type="Panel" parent="." unique_id=423231334]
+self_modulate = Color(1, 1, 1, 0.65)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_mhnvy")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=281362964]
+material = SubResource("ShaderMaterial_vjb58")
+position = Vector2(895, 365)
+texture = ExtResource("2_con2f")
+
+[node name="Label" type="Label" parent="." unique_id=1262950088]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -325.0
+offset_top = -297.0
+offset_right = 325.0
+offset_bottom = -132.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 150
+text = "GRapper"
+
+[node name="Buttons" type="Node" parent="." unique_id=1013367239]
+
+[node name="Story" type="Button" parent="Buttons" unique_id=1628370559]
+offset_left = 295.0
+offset_top = 322.0
+offset_right = 538.0
+offset_bottom = 446.0
+theme_override_font_sizes/font_size = 60
+theme_override_styles/normal = SubResource("StyleBoxFlat_v86rl")
+theme_override_styles/hover = SubResource("StyleBoxFlat_13sgg")
+text = "Story"
+
+[node name="Levels" type="Button" parent="Buttons" unique_id=81172970]
+offset_left = 295.0
+offset_top = 447.0
+offset_right = 538.0
+offset_bottom = 571.0
+theme_override_font_sizes/font_size = 60
+text = "Levels"
+
+[node name="Setting" type="TextureButton" parent="Buttons" unique_id=1853920111]
+texture_filter = 1
+offset_left = 19.0
+offset_top = 22.0
+offset_right = 80.0
+offset_bottom = 86.0
+scale = Vector2(1.2887526, 1.1522067)
+texture_normal = ExtResource("3_con2f")
+script = ExtResource("4_mhnvy")
+
+[node name="Vom" type="TextureButton" parent="Buttons" unique_id=1723710636]
+texture_filter = 1
+offset_left = 10.0
+offset_top = 89.0
+offset_right = 110.0
+offset_bottom = 189.0
+scale = Vector2(0.9831024, 0.73494714)
+texture_normal = ExtResource("5_g3eks")
+
+[node name="Muted" type="TextureButton" parent="Buttons" unique_id=34742169]
+visible = false
+texture_filter = 1
+offset_left = 10.0
+offset_top = 89.0
+offset_right = 110.0
+offset_bottom = 189.0
+scale = Vector2(0.9831024, 0.73494714)
+texture_normal = ExtResource("6_v86rl")
+
+[node name="Exit" type="TextureButton" parent="Buttons" unique_id=371329495]
+texture_filter = 1
+offset_left = 15.000001
+offset_top = 641.0
+offset_right = 67.893776
+offset_bottom = 691.34375
+scale = Vector2(1.334271, 1.369821)
+texture_normal = ExtResource("7_v86rl")
