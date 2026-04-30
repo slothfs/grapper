@@ -5,6 +5,10 @@
 Grapper is a physics-based puzzle and action game that blends soft-body mechanicswith a grappling hook system into something that is honestly kind of chaotic in 
 the best way possible The game builds toward a boss fight against a giant sunand everything leading up to it keeps the pressure and the fun going at the same 
 time
+<img width="1919" height="1116" alt="image" src="https://github.com/user-attachments/assets/3e29632e-25f1-4e13-b1f3-a22392551d17" />
+<img width="623" height="443" alt="image" src="https://github.com/user-attachments/assets/ca20e738-892c-4589-96be-a97889e86f46" />
+
+
 
 The player character is built using the Softbody 2D plugin in Godot 4.6.2, which gives it an internal bone structure and that wobbly, squishy feel when it moves 
 around. The grappling mechanism was written entirely from scratch  no plugin for that part just pure code to get the hook feeling right.
